@@ -41,16 +41,23 @@ for my $r ( @rows[1 .. $#rows] ) {
     $tractdata{$r->[0]} = { map {  $columns[$_] => $r->[$_] } ( 1 .. 9) };
 }
 
-#print Dumper(\%tractdata);
+for my $tract (keys %tractdata) {
+    $tractdata{$tract}{'killed_per_100000'} =
+        sprintf("%.2f" => $tractdata{$tract}{num_killed} * 100_000 / $tractdata{$tract}{'2014_tract_population'});
+    $tractdata{$tract}{'incidents_per_100000'} =
+        sprintf("%.2f" => $tractdata{$tract}{num_incidents} * 100_000 / $tractdata{$tract}{'2014_tract_population'});
+}
 
 for my $tract ( sort { $a <=> $b } keys %tractdata ) {
-    printf("%-15s%-52s%-20s%4d%10s  %10.2f\n" => (
+    printf("%-15s%-52s%-20s%5s  %4d%10.2f  %4d%10.2f\n" => (
         $tract,
         $tractdata{$tract}{city_or_county},
         $tractdata{$tract}{state},
-        $tractdata{$tract}{num_incidents},
         $tractdata{$tract}{'2014_tract_population'},
-        ($tractdata{$tract}{num_incidents} * 100000 / $tractdata{$tract}{'2014_tract_population'}),
+        $tractdata{$tract}{num_incidents},
+        $tractdata{$tract}{'incidents_per_100000'},
+        $tractdata{$tract}{num_killed},
+        $tractdata{$tract}{'killed_per_100000'},
     ) );
 }
 

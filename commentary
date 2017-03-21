@@ -8,7 +8,10 @@ problems with the data.
 3. There is one row where two columns have data in an anomalous format.  The
 reason for these anomalies is discussed in the guardian notes file.
 
-We can address these problems in the second draft of our program by only
-retrieving those columns which have an entry in the header row.  There are 10
-such columns.
+4. There are several rows where the '2014_tract_population' is listed as '0',
+which in turn means that for other columns you get a division-by-zero error.
+
+We can address these problems in the second draft of our program by (a) only
+retrieving the 10 columns which have an entry in the header row; and (b)
+skipping records where the 2014_tract_population is listed as 0.
 
