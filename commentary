@@ -1,0 +1,14 @@
+When we examine the output of the first draft of our program, we observe some
+problems with the data.
+
+1. In each row there are many columns lacking data.
+
+2. The header row has one less column than all other rows.
+
+3. There is one row where two columns have data in an anomalous format.  The
+reason for these anomalies is discussed in the guardian notes file.
+
+We can address these problems in the second draft of our program by only
+retrieving those columns which have an entry in the header row.  There are 10
+such columns.
+
