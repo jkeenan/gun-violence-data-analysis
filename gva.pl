@@ -22,9 +22,11 @@ my @rows;
 my $csv = Text::CSV->new ( { binary => 1 } )
     or die "Cannot use CSV: ".Text::CSV->error_diag ();
  
-open my $IN, '<', $f or die "Unable to open $f: $!";
+open my $IN, '<:encoding(utf8)', $f or die "Unable to open $f: $!";
 while ( my $row = $csv->getline( $IN ) ) {
     my @thisrow = @{$row}[0..9];
+    $thisrow[6] =~ s/,//g;
+    next unless $thisrow[6];
     for my $idx ( 1, 2 ) {
         $thisrow[$idx] =~ s/^(.*)\(.\)$/$1/;
     }
@@ -39,4 +41,16 @@ for my $r ( @rows[1 .. $#rows] ) {
     $tractdata{$r->[0]} = { map {  $columns[$_] => $r->[$_] } ( 1 .. 9) };
 }
 
-print Dumper(\%tractdata);
+#print Dumper(\%tractdata);
+
+for my $tract ( sort { $a <=> $b } keys %tractdata ) {
+    printf("%-15s%-52s%-20s%4d%10s  %10.2f\n" => (
+        $tract,
+        $tractdata{$tract}{city_or_county},
+        $tractdata{$tract}{state},
+        $tractdata{$tract}{num_incidents},
+        $tractdata{$tract}{'2014_tract_population'},
+        ($tractdata{$tract}{num_incidents} * 100000 / $tractdata{$tract}{'2014_tract_population'}),
+    ) );
+}
+
