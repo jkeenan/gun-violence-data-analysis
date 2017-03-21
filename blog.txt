@@ -1,0 +1,65 @@
+On March 20, the Guardian (https://www.theguardian.com/world/2017/mar/20/mapping-gun-murders-micro-level-new-data-2015) and the Gun Violence Archive (http://www.gunviolencearchive.org/) released "a new set of nationwide data for 2015 that maps gun murders at the micro level – down to the local census tract. You can use this data to do analysis of how gun murder clusters within neighborhoods in your city or state."
+
+The five data files are named as follows:
+
+guardian-gva-shr-data-dictionary.csv
+gva_release_2015_grouped_by_city_and_ranked.csv
+gva_release_2015_grouped_by_tract.csv
+gva_release_2015_raw_incidents.csv
+UCR-1985-2015.csv
+
+The fact that the files appear in CSV (Comma-Separated Values) format means that they can be opened in spreadsheet programs such as Microsoft Excel or LibreOffice Calc.  (Indeed, some of the files were probably created in spreadsheets and then saved as .csv files.)  But that also means that the files can be processed by dynamic programming languages such as Perl 5.  In this posting, we look at how to do that.  By working through these files, we will not only learn something about using Perl to process CSV files; we will also learn about difficulties in working with publicly available data and how to workaround those problems.
+
+In what follows I'm going to assume that you have access to software tools commonly found in a Unix programming environment such as found in the Linux or FreeBSD operating systems or -- under the hood -- in Mac OS X (Darwin).  Similar tools probably exist in contemporary Windows environments, but I don't have personal experience with them.
+
+I. Why would we want to translate CSV data into a Perl data structure?
+
+You could use a spreadsheet program to compute new columns in the data.  For example, the file 'gva_release_2015_grouped_by_tract.csv' lists, on a per-census-tract basis, the number of incidents of gun violence and the number of fatalities from such incidents.  To determine the *rate* of such incidents or fatalities, we might want to compute a column which holds the rate of incidents per 100,000 population.
+
+However, if we wanted to combine data from two separate CSV files, or if we wanted to combine some of this Guardian/GVA data with data from another source, we would want "data munging" facilities beyond what a spreadsheet could offer.  Perl is an ideal choice for such data processing.
+
+II. What kind of files have we downloaded?
+
+You can download the files simply by right-clicking on the links in the Guardian page cited above.  They'll go to whatever directory on your system you have designated for that purpose in your browser.  Alternatively, you could create a directory tree on your filesystem specifically to receive these files.
+
+$ mkdir -p guardian/inputs
+$ cd guardian/inputs
+$ wget https://interactive.guim.co.uk/2017/feb/09/gva-data/gva_release_2015_raw_incidents.csv
+# repeat for each of the 4 other files
+
+Here's what the output of wget will look like in your terminal:
+
+[image: wget_output_1.png]
+
+To see a list of all the files, you can use the 'ls -l' command.  It's output will look like this:
+
+[image: ls-l-output-1.png]
+
+To get an idea as to how each of these files has been constructed, we can use the 'file' utility inside a small invocation of the shell on the command-line.
+
+$ for f in `ls *.csv`; do file $f; done
+
+Translating that into English, we get:  For each file listed when I request the name of each CSV file in this directory, call the 'file' utility on the file.  The 'file' utility's output goes to "standard output" (STDOUT), i.e., to your terminal.  There it will look like this:
+
+[image: file-utility-output-1.png]
+
+At this point we know we have a problem. The files have different line terminators.  One ends in the 'CRLF' (Carriage Return/Line Feed) terminators commonly found in DOS and Windows environments.  Three end only in the 'CR' terminators found in pre-OS X Macintosh operating systems.  One file listed has no mention of specific line terminators -- which suggests it has the 'LF' line terminators typical of Unix programming environments.
+
+These problems are not major.  They mainly affect how your text editor of choice will display the files once opened.  You may, at this point, wish to convert all the files to a standard format.
+
+ls *.csv | xargs perl -pi'.orig' -e 's{(\015?\012$|\015)}{\012}g'
+
+Translated into English, that says:  Get each CSV file in this directory and process it with a Perl "one-liner" program which (a) creates a backup of the original file with the '.orig extension' and (b) rewrites the file with all line terminators converted to the Unix 'LF' standard.  The output of the 'ls' command becomes the output of (or, is "piped" into) the 'xargs' command.  The 'xargs' command, in turn, says:  Perform the immediately following command -- the perl one-liner -- on each of the files that have been passed to 'xargs'.
+
+If we were to list the files in our 'inputs' directory, we would now get this:
+
+[image: ls-l-reverse-output-1.png]
+
+Note that so far we have only looked at the overall format of each file.  We haven't yet looked inside to see what the data looks like.
+
+III. How do we translate a CSV file into a Perl data structure?
+
+The true "killer app" for the Perl programming language is the archive of publicly available libraries and extension known as CPAN (Comprehensive Perl Archive Network:  http://search.cpan.org/).  The CSV libraries generally have "Text-CSV" in their names (http://search.cpan.org/search?query=Text-CSV&mode=dist).  The fastest and most thorough of these is "Text-CSV_XS" (http://search.cpan.org/dist/Text-CSV_XS/).  Perhaps the most commonly used is simply called "Text-CSV" (http://search.cpan.org/dist/Text-CSV/).  For many simple cases -- particularly in development rather than production -- you can use one of my own CPAN libraries, "Text-CSV-Hashify" (http://search.cpan.org/dist/Text-CSV-Hashify/).
+
+We'll consider two cases:  one where the data in the CSV file is "clean", the other where the data is "dirty".
+
