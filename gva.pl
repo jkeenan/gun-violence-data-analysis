@@ -33,4 +33,10 @@ while ( my $row = $csv->getline( $IN ) ) {
 $csv->eof or $csv->error_diag();
 close $IN;
 
-print Dumper(\@rows);
+my %tractdata = ();
+my @columns = @{$rows[0]};
+for my $r ( @rows[1 .. $#rows] ) {
+    $tractdata{$r->[0]} = { map {  $columns[$_] => $r->[$_] } ( 1 .. 9) };
+}
+
+print Dumper(\%tractdata);
