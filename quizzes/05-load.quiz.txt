@@ -2,3 +2,15 @@
 
 2. Inside the 'while' loop in this program, we use three perl builtin
 functions:  'join', 'delete' and 'exists'.  Explain what each does.
+
+3. Explain what is going on in this use of the Perl builtin 'sort' function:
+
+    sort {
+        (
+            ($data{$b}{'2014_murder_rate'} || 0)
+            <=>
+            ($data{$a}{'2014_murder_rate'} || 0)
+        )
+        ||
+        $a cmp $b
+    } keys %data

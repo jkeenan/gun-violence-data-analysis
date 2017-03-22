@@ -91,3 +91,20 @@ say scalar(keys %data), " rows extracted from $base";
 say scalar(keys %overwritten_data), " rows rejected from $base";
 dd(\%data, \%overwritten_data);
 
+say '';
+printf "%-40s%15s\n" => ('Agency', '2014 Murder Rate');
+say '';
+for my $agency (
+    sort {
+        (
+            ($data{$b}{'2014_murder_rate'} || 0)
+            <=>
+            ($data{$a}{'2014_murder_rate'} || 0)
+        )
+        ||
+        $a cmp $b
+    } keys %data
+) {
+    printf "%-40s %15.2f\n" => ($agency, $data{$agency}{'2014_murder_rate'});
+
+}

@@ -365,7 +365,9 @@ E.
 05-load.pl represents the final version of the program with which we'll parse
 the UCR-1985-2015.csv file.  In this program we'll create a separate Perl data
 structure to hold the one record -- the first Honolulu record -- that we're
-going to toss out of our dataset.
+going to toss out of our dataset.  Then we'll create a very simple report
+which lists all the agencies by descending order of the 2014 murder rate (per
+100,000 population) in their cities.
 
 [code: 05-load.pl]
 
@@ -422,7 +424,89 @@ out5 contains this:
       },
     )
 
+Farther down in out5 we have the report we have the report listing agencies in
+the descending order of their 2014 murder rates:
+
+    Agency                                  2014 Murder Rate
+
+    St. Louis|MO                                       49.91
+    Detroit|MI                                         43.52
+    New Orleans|LA                                     38.75
+    Jackson|MS                                         35.39
+    Baltimore City|MD                                  33.84
+    ...
+    Tyler|TX                                            0.00
+    West Jordan|UT                                      0.00
+    West Valley|UT                                      0.00
+    Wichita|KS                                          0.00
+    Woodbridge|NJ                                       0.00
+
+We know that certain cities have more gun violence than others, so we wouldn't
+be surprised at the highest ranking cities on this list.  But is it really
+plausible that, say, Wichita, Kansas, would go an entire year without a
+homicide commited with a gun?
+
+No, it's not plausible.  But if we look at our report more closely, we see
+that there are many large cities where the 2014 Murder Rate was listed as
+zero.  Here are some of them:
+
+    Akron City|OH                                       0.00
+    Ann Arbor|MI                                        0.00
+    Charleston City|SC                                  0.00
+    City Of Fort Worth|TX                               0.00
+    Glendale|CA                                         0.00
+    Honolulu|HI                                         0.00
+    Lansing City|MI                                     0.00
+    Louisville|KY                                       0.00
+    Madison City|WI                                     0.00
+    Raleigh|NC                                          0.00
+    Richmond (City) Bureau Of|VA                        0.00
+    Savannah|GA                                         0.00
+    Tucson|AZ                                           0.00
+    Wichita|KS                                          0.00
+
+One can only infer that either some police departments failed to report their
+2014 gun violence data to the FBI -- the source of the data in
+UCR-1985-2015.csv -- or that the FBI failed to tabulate that data properly.
+
+
 IV. What have we learned?
 
+A. We've learned how to use common open-source utility programs to identify
+characteristics of publicly available data files.  Those programs include:
+
+    file
+    grep
+    ls
+    perl
+    wget
+    xargs
+
+B. We've learn how to write Perl 5 programs which, with the help of Perl
+extensions available from CPAN, enable us to read CSV data into data
+structures that we can then use to report new relationships among the data.
+
+C. We've learned that the way publicly available data is structured within
+files is not necessarily optimal.  We may have to construct our own unique
+identifiers for each record.  We may have to detect partial or full
+duplication of records.
+
+D. We've learned that incomplete records in publicly available data can
+distort our understanding of the social realities the data claim to describe.
+
+So kudos to the Guardian and the GVA for making this data available -- but a
+caution as to the limits of the data's usefulness as is.
 
 
+V. Next Steps
+
+Your are encouraged to write Perl programs similar to the ones presented in
+this article to parse the CSV data in the other files supplied by the Guardian
+and GVA.
+
+You are encouraged to take the quizzes, available on GitHub,
+corresponding to each of the Perl programs presented herein.
+
+You are encouraged to use publicly available data to understand social and
+political problems, but you must understand the potential for limitations and
+discrepancies in that data.
