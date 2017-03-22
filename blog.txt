@@ -61,5 +61,13 @@ III. How do we translate a CSV file into a Perl data structure?
 
 The true "killer app" for the Perl programming language is the archive of publicly available libraries and extension known as CPAN (Comprehensive Perl Archive Network:  http://search.cpan.org/).  The CSV libraries generally have "Text-CSV" in their names (http://search.cpan.org/search?query=Text-CSV&mode=dist).  The fastest and most thorough of these is "Text-CSV_XS" (http://search.cpan.org/dist/Text-CSV_XS/).  Perhaps the most commonly used is simply called "Text-CSV" (http://search.cpan.org/dist/Text-CSV/).  For many simple cases -- particularly in development rather than production -- you can use one of my own CPAN libraries, "Text-CSV-Hashify" (http://search.cpan.org/dist/Text-CSV-Hashify/).
 
-We'll consider two cases:  one where the data in the CSV file is "clean", the other where the data is "dirty".
+We'll consider two cases:  one where the data in the CSV file is "clean", the other where the data is "dirty".  Let's consider the dirty case first.
+
+A. Using Text::CSV to clean up dirty data
+
+B. Using Text::CSV::Hashify to load clean CSV data into Perl data structures
+
+IV. What have we learned?
+
+
 

@@ -1,0 +1,31 @@
+Agency: Aurora Police Dept
+{ city => "Aurora", state => "Colorado" }
+{ city => "Aurora", state => "Illinois" }
+Agency: Columbia Police Dept
+{ city => "Columbia", state => "South Carolina" }
+{ city => "Columbia", state => "Missouri" }
+Agency: Columbus Police Dept
+{ city => "Columbus", state => "Ohio" }
+{ city => "Columbus", state => "Georgia" }
+Agency: Glendale Police Dept
+{ city => "Glendale", state => "Arizona" }
+{ city => "Glendale", state => "California" }
+Agency: Honolulu Police Dept
+{ city => "Honolulu", state => "Hawaii" }
+{ city => "Honolulu", state => "Hawaii" }
+Agency: Kansas City Police Dept
+{ city => "Kansas City", state => "Missouri" }
+{ city => "Kansas City", state => "Kansas" }
+Agency: Pasadena Police Dept
+{ city => "Pasadena", state => "Texas" }
+{ city => "Pasadena", state => "California" }
+Agency: Peoria Police Dept
+{ city => "Peoria", state => "Arizona" }
+{ city => "Peoria", state => "Illinois" }
+Agency: Rochester Police Dept
+{ city => "Rochester", state => "New York" }
+{ city => "Rochester", state => "Minnesota" }
+Agency: Springfield Police Dept
+{ city => "Springfield", state => "Missouri" }
+{ city => "Springfield", state => "Massachusetts" }
+{ city => "Springfield", state => "Illinois" }
