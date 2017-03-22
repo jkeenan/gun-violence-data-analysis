@@ -12,7 +12,7 @@ my $inputsdir = "$cwd/inputs";
 
 # Supply name of file in 'inputs' directory on command-line
 
-my $base = 'UCR-1985-2015.csv';
+my $base = shift(@ARGV);
 my $file = "$inputsdir/$base";
 croak "Could not locate $file" unless -f $file;
 

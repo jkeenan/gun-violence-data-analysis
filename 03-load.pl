@@ -10,8 +10,6 @@ use Text::CSV;
 my $cwd = cwd();
 my $inputsdir = "$cwd/inputs";
 
-# Supply name of file in 'inputs' directory on command-line
-
 my $base = 'UCR-1985-2015.csv';
 my $file = "$inputsdir/$base";
 croak "Could not locate $file" unless -f $file;
