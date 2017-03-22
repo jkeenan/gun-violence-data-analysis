@@ -1,0 +1,12 @@
+1. What is the purpose of the 'Text::CSV::column_names()' method?
+
+2. Explain what is going on in this line inside the 'while' loop:
+
+    $data{$rowdata->{$key}} =
+        { map { $_ => $rowdata->{$_} } grep { $_ ne $key } keys %{$rowdata} };
+
+In particular, explain what each of the 'map', 'grep' and 'keys' builtin
+functions is doing.
+
+3. Describe the difference between the hash of hashes produced by this program
+and the array of arrays produced by 01-load.pl.

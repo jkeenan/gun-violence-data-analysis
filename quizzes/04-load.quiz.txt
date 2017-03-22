@@ -1,0 +1,5 @@
+1. Explain what's going on in the 'for' loop in this program:
+
+        for my $agency (@{$agencies{$name}}) {
+            dd( { map { $_ => $agency->{$_} } (qw| city state |)} );
+        }

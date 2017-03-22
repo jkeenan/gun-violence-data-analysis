@@ -1,0 +1,5 @@
+1. The kind of hash populated by the 'while' loop in this program is often
+called a "seen-hash."  Why is that description appropriate?
+
+2. Explain what's going on in the first argument to each of the 2 uses of the
+builtin 'printf' function in this program.

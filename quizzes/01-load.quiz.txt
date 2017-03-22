@@ -1,0 +1,17 @@
+1. The Carp and Cwd modules are part of the Perl 5 core distribution.  What
+does each of them do?  (Hint:  'perldoc Carp')
+
+2. What tool did you use to install the Text-CSV and Data-Dump libraries from
+CPAN?
+
+3. How do you create a new Text::CSV object?
+
+4. In the following line of code, what does 'croak' do and why do we use it?
+
+    open my $IN, '<', $file or croak "Unable to open $file";
+
+5. What is the purpose the 'Text::CSV::getline()' method?
+
+6. How can you look up the documentation for the builtin 'scalar' function?
+
+7.  What is the purpose of the 'Data::Dump::dd' function?

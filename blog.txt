@@ -1,11 +1,17 @@
 On March 20, the Guardian
 (https://www.theguardian.com/world/2017/mar/20/mapping-gun-murders-micro-level-new-data-2015)
-and the Gun Violence Archive (http://www.gunviolencearchive.org/) released "a
+and the Gun Violence Archive (http://www.gunviolencearchive.org/) (GVA) released "a
 new set of nationwide data for 2015 that maps gun murders at the micro level –
 down to the local census tract. You can use this data to do analysis of how
 gun murder clusters within neighborhoods in your city or state."
 
-The five data files are named as follows:
+The Guardian and GVA are to be commended for making this data available to the
+public.  In this posting we'll explore some tools which open-source software
+communities have developed that can be used to analyze this data.  But we'll
+also see that when we use publicly available data we have to address
+discrepancies in that data at the outset.
+
+In the Guardian article linked to above you can find five files named as follows:
 
     guardian-gva-shr-data-dictionary.csv
     gva_release_2015_grouped_by_city_and_ranked.csv
@@ -13,30 +19,31 @@ The five data files are named as follows:
     gva_release_2015_raw_incidents.csv
     UCR-1985-2015.csv
 
-The fact that the files appear in CSV (Comma-Separated Values) format means
+The fact that the files appear in CSV (Comma-Separated Values) format
+(https://en.wikipedia.org/wiki/Comma-separated_values) means
 that they can be opened in spreadsheet programs such as Microsoft Excel or
-LibreOffice Calc.  (Indeed, some of the files were probably created in
-spreadsheets and then saved as .csv files.)  But that also means that the
-files can be processed by dynamic programming languages such as Perl 5.  In
-this posting, we look at how to do that.  By working through these files, we
-will not only learn something about using Perl to process CSV files; we will
-also learn about difficulties in working with publicly available data and how
-to workaround those problems.
+LibreOffice Calc.  But that also means that the files can be processed by
+dynamic programming languages such as Perl 5.
 
-In what follows I'm going to assume that you have access to software tools
-commonly found in a Unix programming environment such as found in the Linux or
-FreeBSD operating systems or -- under the hood -- in Mac OS X (Darwin).
-Similar tools probably exist in contemporary Windows environments, but I don't
-have personal experience with them.
+In what follows we'll assume that you have access to software tools commonly
+found in a Unix programming environment.  You have that environment in the
+Linux or FreeBSD operating systems or -- under the hood -- in Mac OS X
+(Darwin).  (Similar tools probably exist in contemporary Windows environments,
+but I don't have personal experience with them.)  In particular, we'll assume
+that you have a modest familiarity with Perl 5 (https://www.perl.org/) and
+that you know how to install extensions to Perl from the Comprehensive Perl
+Archive Network (CPAN) (http://www.cpan.org/modules/INSTALL.html).  We'll also
+assume you have some familiarity with GitHub (https://github.com).
 
 I. Why would we want to translate CSV data into a Perl data structure?
 
-You could use a spreadsheet program to compute new columns in the data.  For
-example, the file 'gva_release_2015_grouped_by_tract.csv' lists, on a
-per-census-tract basis, the number of incidents of gun violence and the number
-of fatalities from such incidents.  To determine the *rate* of such incidents
-or fatalities, we might want to compute a column which holds the rate of
-incidents per 100,000 population.
+You could use a spreadsheet program to compute new columns in the Guardian/GVA
+data.  For example, the file 'gva_release_2015_grouped_by_tract.csv' lists, on
+a per-census-tract basis, the number of incidents of gun violence and the
+number of fatalities from such incidents.  To determine the *rate* of such
+incidents or fatalities, we might want to compute a column which holds the
+rate of incidents per 100,000 population.  We could certainly do that in a
+spreadsheet program.
 
 However, if we wanted to combine data from two separate CSV files, or if we
 wanted to combine some of this Guardian/GVA data with data from another
@@ -46,17 +53,28 @@ could offer.  Perl is an ideal choice for such data processing.
 II. What kind of files have we downloaded?
 
 You can download the files simply by right-clicking on the links in the
-Guardian page cited above.  They'll go to whatever directory on your system
-you have designated for that purpose in your browser.  Alternatively, you
-could create a directory tree on your filesystem specifically to receive these
-files.
+Guardian page cited above.  (In this article, we'll be discussing those files
+in the state in which we downloaded them on March 21, 2017.  It's quite
+possible that the content of those files may change when small corrections or
+updates are made.  Hence, we will store those files as they appeared on March
+21 in our GitHub repository
+(https://github.com/jkeenan/gun-violence-data-analysis).)
 
-$ mkdir -p guardian/inputs
-$ cd guardian/inputs
-$ wget https://interactive.guim.co.uk/2017/feb/09/gva-data/gva_release_2015_raw_incidents.csv
-# repeat for each of the 4 other files
+They'll go to whatever directory on your system you have designated for that
+purpose in your browser.  Alternatively, you could open your system's terminal
+application and issue commands at the command-prompt ('$' in the examples
+below) to create a directory tree specifically to receive these files.
 
-Here's what the output of wget will look like in your terminal:
+    $ mkdir -p gva/inputs
+    $ cd gva/inputs
+    $ wget https://interactive.guim.co.uk/2017/feb/09/gva-data/gva_release_2015_raw_incidents.csv \
+  	  https://interactive.guim.co.uk/2017/feb/09/gva-data/gva_release_2015_grouped_by_city_and_ranked.csv \
+      https://interactive.guim.co.uk/2017/feb/09/gva-data/gva_release_2015_grouped_by_tract.csv \
+      https://interactive.guim.co.uk/2017/feb/09/gva-data/UCR-1985-2015.csv \
+      https://uploads.guim.co.uk/2017/03/20/guardian-gva-shr-data-dictionary.csv \
+      https://interactive.guim.co.uk/2017/feb/09/gva-data/UCR-1985-2015.csv
+
+Here's what the output of 'wget' will look like in your terminal:
 
 [image: wget_output_1.png]
 
@@ -68,7 +86,7 @@ will look like this:
 To get an idea as to how each of these files has been constructed, we can use
 the 'file' utility inside a small invocation of the shell on the command-line.
 
-$ for f in `ls *.csv`; do file $f; done
+    $ for f in `ls *.csv`; do file $f; done
 
 Translating that into English, we get:  For each file listed when I request
 the name of each CSV file in this directory, call the 'file' utility on the
@@ -79,7 +97,7 @@ to your terminal.  There it will look like this:
 
 At this point we know we have a problem. The files have different line
 terminators.  One ends in the 'CRLF' (Carriage Return/Line Feed) terminators
-commonly found in DOS and Windows environments.  Three end only in the 'CR'
+commonly found in DOS and Windows environments.  Three end in the 'CR'
 terminators found in pre-OS X Macintosh operating systems.  One file listed
 has no mention of specific line terminators -- which suggests it has the 'LF'
 line terminators typical of Unix programming environments.
@@ -88,11 +106,11 @@ These problems are not major.  They mainly affect how your text editor of
 choice will display the files once opened.  You may, at this point, wish to
 convert all the files to a standard format.
 
-ls *.csv | xargs perl -pi'.orig' -e 's{(\015?\012$|\015)}{\012}g'
+    $ ls *.csv | xargs perl -pi'.orig' -e 's{(\015?\012$|\015)}{\012}g'
 
 Translated into English, that says:  Get each CSV file in this directory and
 process it with a Perl "one-liner" program which (a) creates a backup of the
-original file with the '.orig extension' and (b) rewrites the file with all
+original file with the '.orig' extension; and (b) rewrites the file with all
 line terminators converted to the Unix 'LF' standard.  The output of the 'ls'
 command becomes the output of (or, is "piped" into) the 'xargs' command.  The
 'xargs' command, in turn, says:  Perform the immediately following command --
@@ -107,10 +125,9 @@ haven't yet looked inside to see what the data looks like.
 
 III. How do we translate a CSV file into a Perl data structure?
 
-The true "killer app" for the Perl programming language is the archive of
-publicly available libraries and extension known as CPAN (Comprehensive Perl
-Archive Network:  http://search.cpan.org/).  The CSV libraries generally have
-"Text-CSV" in their names
+The true "killer app" for the Perl programming language is the archive
+mentioned above of publicly available libraries and extension known as CPAN.
+The CSV libraries generally have "Text-CSV" in their names
 (http://search.cpan.org/search?query=Text-CSV&mode=dist).  Perhaps the most
 commonly used is simply called "Text-CSV"
 (http://search.cpan.org/dist/Text-CSV/).
@@ -118,17 +135,22 @@ commonly used is simply called "Text-CSV"
 A.
 
 We'll use the Text::CSV module from this distribution.  We'll start by writing
-a Perl 5 program which, given the basename of one of the Guardian-supplied
+a Perl 5 program which, given the basename of one of the Guardian/GVA-supplied
 data files, reads that file's data into an array of arrays:  one record for
 each row in the CSV file.
 
 [code: 01-load.pl]
 
+To run this program and the ones that follow, please install the 'Text-CSV'
+and 'Data-Dump' extensions from CPAN.  Once you have read the code for each
+program, you can test your own understanding of the code by taking a quiz on
+that program located on GitHub.
+
 The first file we will try to process will be 'UCR-1985-2015.csv'.  Since
 '01-load.pl' prints all its output to STDOUT, we will invoke the program with
 the filename, then redirect STDOUT to a file we'll call out1.
 
-    perl 01-load.pl UCR-1985-2015.csv > out1
+    $ perl 01-load.pl UCR-1985-2015.csv > out1
 
 out1 contains this:
 
@@ -169,12 +191,13 @@ out1 contains this:
 B.
 
 Wouldn't our data structure be more useful if each record (other than the
-header) had a name by which we could refer to it?  And wouldn't our data
+header) had a name by which we could refer to the record?  And wouldn't our data
 structure be still more useful if, within each record, we labelled each field
 with the column name?
 
 Yes, both features would be useful.  For this we want to process the CSV data
-into a Perl hash of hashes.  We do that in our next version of the program.
+into a different Perl data structure:  a multilevel hash, or hash of hashes.
+We do that in our next version of the program.
 
 [code: 02-load.pl]
 
@@ -183,7 +206,7 @@ row -- the 'Agency' column from the header row -- as the name for each row.
 
 We invoke this program and redirect its STDOUT to a file called 'out2'.
 
-    perl 02-load.pl UCR-1985-2015.csv > out2
+    $ perl 02-load.pl UCR-1985-2015.csv > out2
 
 out2 contains this:
 
@@ -229,13 +252,12 @@ How can we explain this discrepancy?
 C.
 
 When we built a hash out of the CSV data keyed on 'Agency' we got 11 fewer
-elements than expected.  That's probably because in the CSV file there is
-more than one row with the same value for 'Agency'.  Let's see if that is
-the case.
+elements than expected.  Perhaps in the CSV file there is more than one row
+with the same value for 'Agency'.  Let's see if that is the case.
 
-In 03-load.pl, we re-read the CSV data, but now constructing a small table
-which enables us to look up those values for 'Agency' which appear more than
-once in the CSV data.
+In 03-load.pl, we re-read the CSV data, but now for the purpose of
+constructing a small table which enables us to look up those values for
+'Agency' which appear more than once in the CSV data.
 
 [code: 02-load.pl]
 
@@ -245,7 +267,7 @@ program is now focused on identifying and correcting the "dirty data" in one
 particular CSV file, rather than simply loading the content of any given CSV
 file into a Perl array or hash.  So we can invoke the program as:
 
-    perl 03-load.pl > out3
+    $ perl 03-load.pl > out3
 
 out3 contains this:
 
@@ -264,8 +286,8 @@ out3 contains this:
     Rochester Police Dept            2
     Springfield Police Dept          3
 
-This report, for the most part, confirms our hypothesis.  For example, it's
-perfectly plausible that we would have one record for the Kansas City,
+This report confirms our hypothesis -- mostly.  For example, it's
+perfectly plausible to have one record for the Kansas City,
 Missouri, police department and another record for the Kansas City, Kansas,
 police department.  The best known Peoria is in Illinois -- but there's
 another one in  Arizona!
@@ -284,7 +306,7 @@ where there are two rows with the same agency name.
 
 This is invoked as:
 
-    perl 04-load.pl > out4
+    $ perl 04-load.pl > out4
 
 out4 contains this:
 
@@ -334,9 +356,9 @@ Unix 'grep' utility to look at the 'Honolulu lines in the input file.
     13:Honolulu Police Dept,Honolulu,Hawaii,HI,36,46,36,28,,34,29,31,31,35,38,27,34,17,37,20,20,18,15,26,15,17,19,18,14,19,14,11,18,,15,4.4,5.6,4.3,3.3,,4.1,3.4,3.5,3.5,4,4.3,3.1,3.9,1.9,4.3,2.3,2.3,2,1.7,2.9,1.7,1.9,2.1,2,1.5,2,,,,,1.50900271
 
 There is clearly a difference in the data in the two records starting in the
-31st field ('2011_raw_murder_num') in each record.  We should report this
-discrepancy to the data provider.  In the meantime, however, we will, for the
-sake of expediency, simply have the second entry overwrite the first.
+31st field ('2011_raw_murder_num') in each record.  Ideally, we should report
+this discrepancy to the data provider.  In the meantime, for the sake of
+expediency, we will simply have the second entry overwrite the first.
 
 E.
 
@@ -349,7 +371,7 @@ going to toss out of our dataset.
 
 This is invoked as:
 
-    perl 05-load.pl > out5
+    $ perl 05-load.pl > out5
 
 out5 contains this:
 

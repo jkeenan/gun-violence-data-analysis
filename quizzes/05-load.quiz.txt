@@ -1,0 +1,4 @@
+1. What is the purpose of the 'Text::CSV::getline_hr()' method?
+
+2. Inside the 'while' loop in this program, we use three perl builtin
+functions:  'join', 'delete' and 'exists'.  Explain what each does.
